@@ -3,6 +3,7 @@ import { Platform } from "react-native";
 
 const memoryStore = new Map<string, string>();
 const AUTH_SESSION_KEY = "auth_session";
+const REMEMBERED_CREDENTIALS_KEY = "remembered_credentials";
 
 function getPersistentStorage() {
   if (typeof window !== "undefined" && window.localStorage) {
@@ -84,18 +85,22 @@ export async function deleteItem(key: string) {
   memoryStore.delete(key);
 }
 
-export async function setAuthSession(user: {
-  email: string;
-  name?: string | null;
-}) {
+export async function setAuthSession(
+  user: {
+    email: string;
+    name?: string | null;
+  },
+  keepSignedIn = false,
+) {
   await setItem(
     AUTH_SESSION_KEY,
     JSON.stringify({
       authenticated: true,
       email: user.email,
       name: user.name ?? null,
+      rememberMe: keepSignedIn,
     }),
-    true,
+    keepSignedIn,
   );
 }
 
@@ -115,4 +120,54 @@ export async function getAuthSession() {
 
 export async function clearAuthSession() {
   await deleteItem(AUTH_SESSION_KEY);
+}
+
+export async function setRememberedCredentials(credentials: {
+  email: string;
+  password: string;
+}) {
+  await setItem(
+    REMEMBERED_CREDENTIALS_KEY,
+    JSON.stringify({
+      email: credentials.email,
+      password: credentials.password,
+    }),
+    true,
+  );
+}
+
+export async function getRememberedCredentials(): Promise<{
+  email: string;
+  password: string;
+} | null> {
+  const stored = await getItem(REMEMBERED_CREDENTIALS_KEY);
+
+  if (!stored) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(stored) as {
+      email?: string;
+      password?: string;
+    };
+
+    if (
+      typeof parsed.email === "string" &&
+      typeof parsed.password === "string"
+    ) {
+      return {
+        email: parsed.email,
+        password: parsed.password,
+      };
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+export async function clearRememberedCredentials() {
+  await deleteItem(REMEMBERED_CREDENTIALS_KEY);
 }

@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -12,7 +12,12 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { setAuthSession } from "../lib/storage";
+import {
+  clearRememberedCredentials,
+  getRememberedCredentials,
+  setAuthSession,
+  setRememberedCredentials,
+} from "../lib/storage";
 import { supabase, SUPABASE_CONFIGURED } from "../lib/supabase";
 
 const LIGHT_THEME = {
@@ -33,6 +38,8 @@ export default function Index() {
   const [emailTouched, setEmailTouched] = useState(false);
   const [passwordTouched, setPasswordTouched] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
+  const [keepSignedIn, setKeepSignedIn] = useState(true);
 
   const handleLogin = async () => {
     setEmailTouched(true);
@@ -64,7 +71,18 @@ export default function Index() {
             (data as any)?.user?.user_metadata?.name ||
             (data as any)?.session?.user?.user_metadata?.name ||
             "";
-          await setAuthSession({ email: normalizedEmail, name: signedInName });
+          await setAuthSession(
+            { email: normalizedEmail, name: signedInName },
+            keepSignedIn,
+          );
+          if (keepSignedIn) {
+            await setRememberedCredentials({
+              email: normalizedEmail,
+              password,
+            });
+          } else {
+            await clearRememberedCredentials();
+          }
           setEmail("");
           setPassword("");
           setEmailTouched(false);
@@ -96,6 +114,25 @@ export default function Index() {
 
   const formValid = validateEmail(email) && validatePassword(password);
   const emailError = emailTouched && !validateEmail(email);
+
+  useEffect(() => {
+    const loadSession = async () => {
+      const remembered = await getRememberedCredentials();
+      if (remembered) {
+        setEmail(remembered.email);
+        setPassword(remembered.password);
+        setKeepSignedIn(true);
+      }
+
+      setCheckingSession(false);
+    };
+
+    loadSession();
+  }, [router]);
+
+  if (checkingSession) {
+    return null;
+  }
 
   return (
     <KeyboardAvoidingView
@@ -218,6 +255,28 @@ export default function Index() {
               </Text>
             ) : null}
 
+            <View style={styles.checkboxRow}>
+              <Pressable
+                onPress={() => setKeepSignedIn((value) => !value)}
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: keepSignedIn }}
+              >
+                <View
+                  style={[
+                    styles.checkbox,
+                    keepSignedIn && styles.checkboxChecked,
+                  ]}
+                >
+                  {keepSignedIn ? (
+                    <Text style={styles.checkboxMark}>✓</Text>
+                  ) : null}
+                </View>
+              </Pressable>
+              <Text style={[styles.checkboxLabel, { color: theme.text }]}>
+                Remember me
+              </Text>
+            </View>
+
             <Pressable
               style={({ pressed }) => [
                 styles.primaryButton,
@@ -331,6 +390,35 @@ const styles = StyleSheet.create({
     color: "#c00",
     fontSize: 12,
     marginBottom: 8,
+  },
+  checkboxRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 4,
+    marginBottom: 12,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: "#94a3b8",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#ffffff",
+    marginRight: 8,
+  },
+  checkboxChecked: {
+    backgroundColor: "#2563eb",
+    borderColor: "#2563eb",
+  },
+  checkboxMark: {
+    color: "#ffffff",
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  checkboxLabel: {
+    fontSize: 14,
   },
   secondaryButton: {
     marginTop: 8,
