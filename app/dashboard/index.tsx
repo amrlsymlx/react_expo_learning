@@ -67,11 +67,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 24,
     gap: 10,
+    //backgroundColor: "#e089d9",
   },
   title: {
     fontSize: 30,
     fontWeight: "800",
     marginBottom: 6,
+    // backgroundColor: "#e089d9",
   },
   subtitle: {
     fontSize: 16,
