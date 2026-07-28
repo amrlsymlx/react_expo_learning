@@ -2,16 +2,11 @@ import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { clearAuthSession, getAuthSession } from "../../lib/storage";
-
-const LIGHT_THEME = {
-  background: "#f5f7fb",
-  text: "#111827",
-  secondaryText: "#4b5563",
-};
+import { useTheme } from "../../lib/theme";
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const theme = LIGHT_THEME;
+  const { theme } = useTheme();
   const [ready, setReady] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");

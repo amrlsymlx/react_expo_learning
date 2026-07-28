@@ -19,18 +19,11 @@ import {
   setRememberedCredentials,
 } from "../lib/storage";
 import { supabase, SUPABASE_CONFIGURED } from "../lib/supabase";
-
-const LIGHT_THEME = {
-  background: "#f5f7fb",
-  text: "#111827",
-  secondaryText: "#4b5563",
-  bannerText: "#7c4a00",
-  error: "#c00",
-};
+import { useTheme } from "../lib/theme";
 
 export default function Index() {
   const router = useRouter();
-  const theme = LIGHT_THEME;
+  const { theme } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -156,7 +149,10 @@ export default function Index() {
             style={[
               styles.formCard,
               {
-                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                backgroundColor:
+                  theme.name === "dark"
+                    ? "rgba(31, 41, 55, 0.72)"
+                    : "rgba(255, 255, 255, 0.95)",
                 borderWidth: Platform.OS === "android" ? 0 : 1,
                 borderColor:
                   Platform.OS === "android"
@@ -175,7 +171,15 @@ export default function Index() {
             </View>
 
             {!SUPABASE_CONFIGURED ? (
-              <View style={styles.banner}>
+              <View
+                style={[
+                  styles.banner,
+                  {
+                    backgroundColor: theme.bannerBackground,
+                    borderColor: theme.border,
+                  },
+                ]}
+              >
                 <Text style={[styles.bannerText, { color: theme.bannerText }]}>
                   Supabase is not configured. Add `EXPO_PUBLIC_SUPABASE_URL` and
                   `EXPO_PUBLIC_SUPABASE_ANON_KEY` to .env and restart the app.
@@ -187,12 +191,20 @@ export default function Index() {
               style={[
                 styles.input,
                 {
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  borderColor: "rgba(15, 23, 42, 0.1)",
-                  color: "#111827",
+                  backgroundColor:
+                    theme.name === "dark"
+                      ? "rgba(17, 24, 39, 0.85)"
+                      : "rgba(255, 255, 255, 0.95)",
+                  borderColor:
+                    theme.name === "dark"
+                      ? "rgba(255, 255, 255, 0.14)"
+                      : "rgba(15, 23, 42, 0.1)",
+                  color: theme.inputText,
                 },
               ]}
-              placeholderTextColor="#6b7280"
+              placeholderTextColor={
+                theme.name === "dark" ? "#cbd5e1" : "#6b7280"
+              }
               placeholder="Email"
               value={email}
               onChangeText={(t) => {
@@ -217,12 +229,20 @@ export default function Index() {
                     flex: 1,
                     marginRight: 8,
                     marginBottom: 0,
-                    backgroundColor: "rgba(255, 255, 255, 0.95)",
-                    borderColor: "rgba(15, 23, 42, 0.1)",
-                    color: "#111827",
+                    backgroundColor:
+                      theme.name === "dark"
+                        ? "rgba(17, 24, 39, 0.85)"
+                        : "rgba(255, 255, 255, 0.95)",
+                    borderColor:
+                      theme.name === "dark"
+                        ? "rgba(255, 255, 255, 0.14)"
+                        : "rgba(15, 23, 42, 0.1)",
+                    color: theme.inputText,
                   },
                 ]}
-                placeholderTextColor="#6b7280"
+                placeholderTextColor={
+                  theme.name === "dark" ? "#cbd5e1" : "#6b7280"
+                }
                 placeholder="Password"
                 value={password}
                 onChangeText={(t) => {

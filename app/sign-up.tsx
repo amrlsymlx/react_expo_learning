@@ -14,15 +14,7 @@ import {
   View,
 } from "react-native";
 import { supabase, SUPABASE_CONFIGURED } from "../lib/supabase";
-
-const LIGHT_THEME = {
-  background: "#f5f7fb",
-  surface: "#ffffff",
-  text: "#111827",
-  secondaryText: "#4b5563",
-  bannerText: "#7c4a00",
-  accent: "#2563eb",
-};
+import { useTheme } from "../lib/theme";
 
 type CaptchaChallenge = {
   text: string;
@@ -42,7 +34,7 @@ const createCaptchaChallenge = (): CaptchaChallenge => {
 
 export default function SignUp() {
   const router = useRouter();
-  const theme = LIGHT_THEME;
+  const { theme } = useTheme();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -237,7 +229,10 @@ export default function SignUp() {
             style={[
               styles.formCard,
               {
-                backgroundColor: "rgba(255, 255, 255, 0.95)",
+                backgroundColor:
+                  theme.name === "dark"
+                    ? "rgba(31, 41, 55, 0.72)"
+                    : "rgba(255, 255, 255, 0.95)",
                 borderWidth: Platform.OS === "android" ? 0 : 1,
                 borderColor:
                   Platform.OS === "android"
@@ -256,7 +251,15 @@ export default function SignUp() {
             </View>
 
             {!SUPABASE_CONFIGURED ? (
-              <View style={styles.banner}>
+              <View
+                style={[
+                  styles.banner,
+                  {
+                    backgroundColor: theme.bannerBackground,
+                    borderColor: theme.border,
+                  },
+                ]}
+              >
                 <Text style={[styles.bannerText, { color: theme.bannerText }]}>
                   Supabase is not configured. Add `EXPO_PUBLIC_SUPABASE_URL` and
                   `EXPO_PUBLIC_SUPABASE_ANON_KEY` to .env before registering.
@@ -265,8 +268,18 @@ export default function SignUp() {
             ) : null}
 
             {status ? (
-              <View style={styles.statusBox}>
-                <Text style={styles.statusText}>{status}</Text>
+              <View
+                style={[
+                  styles.statusBox,
+                  {
+                    backgroundColor: theme.statusBackground,
+                    borderColor: theme.border,
+                  },
+                ]}
+              >
+                <Text style={[styles.statusText, { color: theme.statusText }]}>
+                  {status}
+                </Text>
               </View>
             ) : null}
 
@@ -274,12 +287,20 @@ export default function SignUp() {
               style={[
                 styles.input,
                 {
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  borderColor: "rgba(15, 23, 42, 0.1)",
-                  color: "#111827",
+                  backgroundColor:
+                    theme.name === "dark"
+                      ? "rgba(17, 24, 39, 0.85)"
+                      : "rgba(255, 255, 255, 0.95)",
+                  borderColor:
+                    theme.name === "dark"
+                      ? "rgba(255, 255, 255, 0.14)"
+                      : "rgba(15, 23, 42, 0.1)",
+                  color: theme.inputText,
                 },
               ]}
-              placeholderTextColor={"#6b7280"}
+              placeholderTextColor={
+                theme.name === "dark" ? "#cbd5e1" : "#6b7280"
+              }
               placeholder="Full name"
               value={name}
               onChangeText={setName}
@@ -290,12 +311,20 @@ export default function SignUp() {
               style={[
                 styles.input,
                 {
-                  backgroundColor: "rgba(255, 255, 255, 0.95)",
-                  borderColor: "rgba(15, 23, 42, 0.1)",
-                  color: "#111827",
+                  backgroundColor:
+                    theme.name === "dark"
+                      ? "rgba(17, 24, 39, 0.85)"
+                      : "rgba(255, 255, 255, 0.95)",
+                  borderColor:
+                    theme.name === "dark"
+                      ? "rgba(255, 255, 255, 0.14)"
+                      : "rgba(15, 23, 42, 0.1)",
+                  color: theme.inputText,
                 },
               ]}
-              placeholderTextColor={"#6b7280"}
+              placeholderTextColor={
+                theme.name === "dark" ? "#cbd5e1" : "#6b7280"
+              }
               placeholder="Email"
               value={email}
               onChangeText={setEmail}
@@ -316,12 +345,20 @@ export default function SignUp() {
                     flex: 1,
                     marginRight: 8,
                     marginBottom: 0,
-                    backgroundColor: "rgba(255, 255, 255, 0.95)",
-                    borderColor: "rgba(15, 23, 42, 0.1)",
-                    color: "#111827",
+                    backgroundColor:
+                      theme.name === "dark"
+                        ? "rgba(17, 24, 39, 0.85)"
+                        : "rgba(255, 255, 255, 0.95)",
+                    borderColor:
+                      theme.name === "dark"
+                        ? "rgba(255, 255, 255, 0.14)"
+                        : "rgba(15, 23, 42, 0.1)",
+                    color: theme.inputText,
                   },
                 ]}
-                placeholderTextColor={"#6b7280"}
+                placeholderTextColor={
+                  theme.name === "dark" ? "#cbd5e1" : "#6b7280"
+                }
                 placeholder="Password"
                 value={password}
                 onChangeText={setPassword}
@@ -342,8 +379,22 @@ export default function SignUp() {
               </Pressable>
             </View>
             {password.length > 0 ? (
-              <View style={styles.passwordHintBox}>
-                <Text style={styles.passwordHintTitle}>
+              <View
+                style={[
+                  styles.passwordHintBox,
+                  {
+                    borderColor: theme.name === "dark" ? "#334155" : "#dbeafe",
+                    backgroundColor:
+                      theme.name === "dark" ? "#1e293b" : "#eff6ff",
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.passwordHintTitle,
+                    { color: theme.name === "dark" ? "#bfdbfe" : "#1e3a8a" },
+                  ]}
+                >
                   Password must include:
                 </Text>
                 <View style={styles.passwordHintItem}>
@@ -359,6 +410,9 @@ export default function SignUp() {
                   <Text
                     style={[
                       styles.passwordHintText,
+                      {
+                        color: theme.name === "dark" ? "#cbd5e1" : "#475569",
+                      },
                       passwordChecks.minLength &&
                         styles.passwordHintTextSuccess,
                     ]}
@@ -379,6 +433,9 @@ export default function SignUp() {
                   <Text
                     style={[
                       styles.passwordHintText,
+                      {
+                        color: theme.name === "dark" ? "#cbd5e1" : "#475569",
+                      },
                       passwordChecks.hasUppercase &&
                         styles.passwordHintTextSuccess,
                     ]}
@@ -399,6 +456,9 @@ export default function SignUp() {
                   <Text
                     style={[
                       styles.passwordHintText,
+                      {
+                        color: theme.name === "dark" ? "#cbd5e1" : "#475569",
+                      },
                       passwordChecks.hasLowercase &&
                         styles.passwordHintTextSuccess,
                     ]}
@@ -419,6 +479,9 @@ export default function SignUp() {
                   <Text
                     style={[
                       styles.passwordHintText,
+                      {
+                        color: theme.name === "dark" ? "#cbd5e1" : "#475569",
+                      },
                       passwordChecks.hasNumber &&
                         styles.passwordHintTextSuccess,
                     ]}
@@ -441,6 +504,9 @@ export default function SignUp() {
                   <Text
                     style={[
                       styles.passwordHintText,
+                      {
+                        color: theme.name === "dark" ? "#cbd5e1" : "#475569",
+                      },
                       passwordChecks.hasSpecialCharacter &&
                         styles.passwordHintTextSuccess,
                     ]}
@@ -458,12 +524,20 @@ export default function SignUp() {
                     flex: 1,
                     marginRight: 8,
                     marginBottom: 0,
-                    backgroundColor: "rgba(255, 255, 255, 0.95)",
-                    borderColor: "rgba(15, 23, 42, 0.1)",
-                    color: "#111827",
+                    backgroundColor:
+                      theme.name === "dark"
+                        ? "rgba(17, 24, 39, 0.85)"
+                        : "rgba(255, 255, 255, 0.95)",
+                    borderColor:
+                      theme.name === "dark"
+                        ? "rgba(255, 255, 255, 0.14)"
+                        : "rgba(15, 23, 42, 0.1)",
+                    color: theme.inputText,
                   },
                 ]}
-                placeholderTextColor={"#6b7280"}
+                placeholderTextColor={
+                  theme.name === "dark" ? "#cbd5e1" : "#6b7280"
+                }
                 placeholder="Confirm password"
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -603,12 +677,20 @@ export default function SignUp() {
                   styles.input,
                   {
                     marginBottom: 0,
-                    backgroundColor: "rgba(255, 255, 255, 0.95)",
-                    borderColor: "rgba(15, 23, 42, 0.1)",
-                    color: "#111827",
+                    backgroundColor:
+                      theme.name === "dark"
+                        ? "rgba(17, 24, 39, 0.85)"
+                        : "rgba(255, 255, 255, 0.95)",
+                    borderColor:
+                      theme.name === "dark"
+                        ? "rgba(255, 255, 255, 0.14)"
+                        : "rgba(15, 23, 42, 0.1)",
+                    color: theme.inputText,
                   },
                 ]}
-                placeholderTextColor={"#6b7280"}
+                placeholderTextColor={
+                  theme.name === "dark" ? "#cbd5e1" : "#6b7280"
+                }
                 placeholder="Enter the characters shown"
                 value={captchaInput}
                 onChangeText={(value) => {
